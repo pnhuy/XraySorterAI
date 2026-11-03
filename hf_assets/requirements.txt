@@ -1,0 +1,6 @@
+onnxruntime>=1.17
+numpy>=1.23
+opencv-python-headless>=4.8
+pydicom>=2.4      # only needed for DICOM (.dcm) input / pydicom Datasets
+nibabel>=4.0      # only needed for NIfTI input
+Pillow>=9.0       # only needed to pass PIL images

@@ -47,3 +47,6 @@ htmlcov/
 
 # Build output (regenerate with export.py)
 dist/
+
+# Local sample radiographs (not tracked)
+samples/

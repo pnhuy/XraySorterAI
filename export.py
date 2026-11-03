@@ -111,6 +111,8 @@ def main():
     assets = ROOT / "hf_assets"
     for f in ("inference.py", "README.md", "requirements.txt", "LICENSE", ".gitattributes"):
         shutil.copy(assets / f, out / f)
+    if (ROOT / "samples").is_dir():  # optional, local-only (git-ignored)
+        shutil.copytree(ROOT / "samples", out / "samples")
     print("done ->", out)
 
 

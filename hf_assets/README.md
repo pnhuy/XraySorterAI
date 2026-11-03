@@ -38,7 +38,7 @@ musculoskeletal radiographs. Original work: <https://github.com/maxrusse/XraySor
 ## Usage
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt   # in a uv venv use: uv pip install -r requirements.txt
 python inference.py scan.dcm scan.png scan.nii.gz
 ```
 
@@ -48,6 +48,26 @@ sorter = XraySorter(".")
 print(sorter.predict("scan.dcm"))   # also .png/.nii.gz, PIL.Image, pydicom Dataset, NumPy array
 # {'projection': {'label': 'ap_knee', 'confidence': 0.99}, 'side': {'label': 'bodyside_left', 'confidence': 0.98}}
 ```
+
+## Input conventions (important)
+
+`inference.py` handles two properties of the training data for you. Both are on by default:
+
+1. **Intensity range.** The preprocessing is intensity-scale dependent and the models were trained on
+   high-bit-depth data (~12-bit). 8-bit inputs (JPEG, 8-bit PNG, `uint8` arrays, 8-bit PIL) are multiplied
+   by 16 on load (`promote_8bit=True`). Disable with `XraySorter(".", promote_8bit=False)`.
+2. **Orientation.** The models were trained on NIfTI arrays indexed (x, y), not upright images. Upright inputs
+   (PNG, JPEG, DICOM, PIL, NumPy: rows top to bottom as displayed) are converted with an anti-transpose
+   (`np.rot90(a, 2).T`). NIfTI files are loaded in the native orientation and left untouched.
+   Disable with `upright=False` if you already feed NIfTI-oriented arrays.
+
+On `samples/`, projection accuracy is 0/14 without either step, 9/14 with the range fix only and 13/14 with
+both. Skipping the orientation step also makes the side model unreliable.
+
+## Samples
+
+`samples/` has 14 CC0 radiographs plus `run_samples.py` (`python samples/run_samples.py`). They are web
+JPEGs, so this is a smoke test, not a performance estimate; see `samples/README.md`.
 
 Efficiency notes: sessions are built once, preprocessing is shared by both models, batches are supported,
 no TensorFlow / tf-explain dependency (Grad-CAM is not included in this export).

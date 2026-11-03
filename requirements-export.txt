@@ -1,0 +1,7 @@
+# Only needed to run export.py (Keras -> ONNX). Use Python 3.10/3.11.
+# Inference needs only dist/requirements.txt.
+tensorflow==2.15.*
+numpy<2
+tf2onnx==1.17.0
+onnx==1.16.2        # newer onnx conflicts with TensorFlow 2.15's ml_dtypes
+onnxruntime==1.19.2

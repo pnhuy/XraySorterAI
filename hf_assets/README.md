@@ -61,13 +61,8 @@ print(sorter.predict("scan.dcm"))   # also .png/.nii.gz, PIL.Image, pydicom Data
    (`np.rot90(a, 2).T`). NIfTI files are loaded in the native orientation and left untouched.
    Disable with `upright=False` if you already feed NIfTI-oriented arrays.
 
-On the first 14 images in `samples/`, projection accuracy is 0/14 without either step, 9/14 with the range fix only and 13/14 with
+On a small local set of 14 web-sourced test radiographs (not distributed), projection accuracy is 0/14 without either step, 9/14 with the range fix only and 13/14 with
 both. Skipping the orientation step also makes the side model unreliable.
-
-## Samples
-
-`samples/` has 16 Wikimedia Commons radiographs plus `run_samples.py` (`python samples/run_samples.py`). They are web
-JPEGs, so this is a smoke test, not a performance estimate; see `samples/README.md`.
 
 Efficiency notes: sessions are built once, preprocessing is shared by both models, batches are supported,
 no TensorFlow / tf-explain dependency (Grad-CAM is not included in this export).

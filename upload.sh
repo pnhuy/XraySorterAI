@@ -31,19 +31,8 @@ done
 
 find "$DIST" -name '__pycache__' -type d -prune -exec rm -rf {} +
 
-# Publish only samples that are documented in samples/manifest.json (source + license known);
-# any other image dropped into samples/ stays local.
-EXCLUDES=(--exclude "__pycache__/*" --exclude "*.pyc" --exclude ".DS_Store")
-if [[ -f "$DIST/samples/manifest.json" ]]; then
-  while IFS= read -r f; do EXCLUDES+=(--exclude "samples/$f"); done < <(python3 - "$DIST/samples" <<'PY'
-import json, sys, pathlib
-d = pathlib.Path(sys.argv[1]); keep = {e["file"] for e in json.loads((d / "manifest.json").read_text())}
-for p in sorted(d.iterdir()):
-    if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".dcm", ".gz", ".nii"} and p.name not in keep:
-        print(p.name)
-PY
-)
-fi
+# samples/ (local test images) are never uploaded.
+EXCLUDES=(--exclude "__pycache__/*" --exclude "*.pyc" --exclude ".DS_Store" --exclude "samples/*")
 
 echo "repo   : https://huggingface.co/$REPO"
 echo "folder : $DIST"
@@ -55,7 +44,12 @@ fi
 
 if   command -v hf >/dev/null 2>&1;              then HF=(hf)
 elif command -v huggingface-cli >/dev/null 2>&1; then HF=(huggingface-cli)
-else echo "error: Hugging Face CLI not found. Run: pip install -U huggingface_hub" >&2; exit 1; fi
+else
+  echo "error: Hugging Face CLI ('hf') not found in this environment." >&2
+  echo "       uv venv:  uv pip install -U huggingface_hub     (a bare 'pip' may install elsewhere)" >&2
+  echo "       otherwise: python -m pip install -U huggingface_hub" >&2
+  exit 1
+fi
 
 if [[ -z "${HF_TOKEN:-}" ]] && ! "${HF[@]}" auth whoami >/dev/null 2>&1 \
    && ! "${HF[@]}" whoami >/dev/null 2>&1; then

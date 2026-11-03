@@ -60,10 +60,10 @@ dist/                  generated output (git-ignored): onnx/, config.json, infer
 
 ### 1. Create `dist/`
 
-Needs Python 3.10/3.11 (TensorFlow 2.15). Skip this step if you only want to run or upload an existing `dist/`.
+Needs **Python 3.10 or 3.11** (TensorFlow 2.15 has no wheels for 3.12+; a default `uv venv` may pick 3.13). Skip this step if you only want to run or upload an existing `dist/`.
 
 ```bash
-uv venv --python 3.11 .venv && source .venv/bin/activate
+uv venv --python 3.11 .venv-export && source .venv-export/bin/activate
 uv pip install -r requirements-export.txt -r dist/requirements.txt   # or: python -m pip install ...
 python export.py            # optional: --opset 17 --out dist
 ```
@@ -74,7 +74,6 @@ converts with tf2onnx (opset 17, dynamic batch), checks each ONNX model against 
 ```
 dist/onnx/projection.onnx   dist/onnx/side.onnx   dist/config.json (labels, I/O, SHA-256)
 dist/inference.py  dist/README.md (model card)  dist/requirements.txt  dist/LICENSE  dist/.gitattributes
-dist/samples/              (if ./samples exists)
 ```
 
 `dist/` is wiped and rebuilt on every run, so edit `hf_assets/` (not `dist/`) and rerun `export.py`.
@@ -113,7 +112,7 @@ python samples/run_samples.py
 ### 3. Upload to Hugging Face
 
 ```bash
-pip install -U huggingface_hub
+uv pip install -U huggingface_hub     # or: python -m pip install -U huggingface_hub
 hf auth login                  # token with write access (older CLI: huggingface-cli login), or export HF_TOKEN=...
 ./upload.sh --dry-run          # show the exact upload command, upload nothing
 ./upload.sh                    # upload dist/ to pnhuy/xraysorterai
@@ -121,8 +120,7 @@ hf auth login                  # token with write access (older CLI: huggingface
 HF_REPO=<user>/<other-repo> ./upload.sh
 ```
 
-`upload.sh` checks that `dist/` is complete, removes `__pycache__`, and publishes only the samples listed in
-`samples/manifest.json` (those have a documented source and license); other files in `samples/` stay local.
+`upload.sh` checks that `dist/` is complete, removes `__pycache__`, and never uploads `samples/` (local test images only).
 Before publishing, put the real copyright holder in `hf_assets/LICENSE` and rerun `export.py`.
 
 ### 4. Load from Hugging Face and run inference

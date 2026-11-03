@@ -6,6 +6,12 @@ Usage:
 
 Requires: tensorflow==2.15, tf2onnx, onnx==1.16.2, onnxruntime, numpy<2
 """
+import sys
+
+if not ((3, 9) <= sys.version_info[:2] <= (3, 11)):
+    sys.exit(f"export.py needs Python 3.9-3.11 (TensorFlow 2.15 has no wheels for {sys.version_info.major}."
+             f"{sys.version_info.minor}). Create one with: uv venv --python 3.11 .venv-export")
+
 import argparse
 import hashlib
 import json
@@ -111,8 +117,6 @@ def main():
     assets = ROOT / "hf_assets"
     for f in ("inference.py", "README.md", "requirements.txt", "LICENSE", ".gitattributes"):
         shutil.copy(assets / f, out / f)
-    if (ROOT / "samples").is_dir():  # optional, local-only (git-ignored)
-        shutil.copytree(ROOT / "samples", out / "samples")
     print("done ->", out)
 
 
